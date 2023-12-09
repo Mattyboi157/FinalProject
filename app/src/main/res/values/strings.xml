@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">FinalProject</string>
+    <string name="enter_date_hint">Enter Date Here (YYYY-MM-DD)</string>
+    <string name="search_button_text">Search</string>
+    <string name="date_picker_button_text">Calendar</string>
+    <string name="title_text">Title</string>
+    <string name="description_text">Description</string>
+    <string name="date_text">Date</string>
+    <string name="navigation_drawer_open">Nav Drawer Opened</string>
+    <string name="navigation_drawer_close">Nav Drawer Closed</string>
+    <string name="delete_image_button_description">DELETE</string>
+
+</resources>
