@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FinalProject</string>
+    <string name="enter_date_hint">Entrez la date ici (AAAA-MM-JJ)</string>
+    <string name="search_button_text">Recherche</string>
+    <string name="date_picker_button_text">Calendrier</string>
+    <string name="title_text">Titre</string>
+    <string name="description_text">Description</string>
+    <string name="date_text">Date</string>
+    <string name="delete_image_button_description">SUPPRIMER</string>
+    <string name="editText_hint">Entrez la date ici (AAAA-MM-JJ)</string>
+    <string name="save_button_text">Enregistrer l\'Image</string>
+    <string name="successful_save_message">Image Enregistrée</string>
+    <string name="failed_save_message">Aucune donnée APOD disponible</string>
+    <string name="load_fail">Échec de la récupération des données APOD</string>
+    <string name="no">Non</string>
+    <string name="yes">Oui</string>
+    <string name="delete_confirmation_message">Êtes-vous sûr de vouloir supprimer ceci?</string>
+    <string name="loading_message">Récupérer APOD...</string>
+    <string name="hyperlink_message">Voir l\'image HD</string>
+    <string name="home_button_text">Maison</string>
+    <string name="saved_images_button_text">Images Enregistrées</string>
+</resources>

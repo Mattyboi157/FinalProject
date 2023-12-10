@@ -3,6 +3,7 @@ package com.example.finalproject;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -14,6 +15,11 @@ public class SharedPreferenceHelper {
 
     private static final String PREF_NAME = "SavedImagesPref";
     private static final String KEY_SAVED_IMAGES = "savedImages";
+
+    public static void showToast(Context context, int messageResourceId) {
+        String message = context.getString(messageResourceId);
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+    }
 
     // Save a single image
     public static void saveImage(Context context, SavedImage savedImage) {
@@ -28,6 +34,8 @@ public class SharedPreferenceHelper {
         savedImages.add(savedImage);
 
         saveImages(context, savedImages);
+
+        showToast(context, R.string.successful_save_message);
     }
 
 
@@ -59,5 +67,9 @@ public class SharedPreferenceHelper {
     public static void clearSavedImages(Context context) {
         SharedPreferences preferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         preferences.edit().remove(KEY_SAVED_IMAGES).apply();
+    }
+
+    private static void showToast(Context context, String message) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 }

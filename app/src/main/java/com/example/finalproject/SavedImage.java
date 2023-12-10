@@ -7,7 +7,6 @@ public class SavedImage {
     private String hdUrl;
     private String date;
 
-    // Default constructor
     public SavedImage() {
     }
     public SavedImage(String title, String description, String imageUrl, String hdUrl, String date) {

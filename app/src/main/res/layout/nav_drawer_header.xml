@@ -10,6 +10,6 @@
     android:paddingBottom="8dp"
     android:background="?attr/colorPrimaryDark">
 
-    <!-- Add your header content here, such as an ImageView, TextView, etc. -->
+
 
 </LinearLayout>
