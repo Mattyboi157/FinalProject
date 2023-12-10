@@ -2,8 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/menu_saved_images"
-        android:title="Saved Images"/>
+        android:title="@string/saved_images_button_text"/>
     <item
         android:id="@+id/menu_home"
-        android:title="Home"/>
+        android:title="@string/home_button_text"/>
 </menu>

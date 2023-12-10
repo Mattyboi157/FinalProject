@@ -9,5 +9,18 @@
     <string name="navigation_drawer_open">Nav Drawer Opened</string>
     <string name="navigation_drawer_close">Nav Drawer Closed</string>
     <string name="delete_image_button_description">DELETE</string>
+    <string name="editText_hint">Enter Date (YYYY-MM-DD)</string>
+    <string name="save_button_text">Save Image</string>
+    <string name="successful_save_message">Image Saved</string>
+    <string name="failed_save_message">No APOD data available</string>
+    <string name="load_fail">Failed to fetch APOD data</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+    <string name="delete_confirmation_message">Are you sure you want to delete this?</string>
+    <string name="loading_message">Fetchig APOD...</string>
+    <string name="hyperlink_message">View HD Image</string>
+    <string name="home_button_text">Home</string>
+    <string name="saved_images_button_text">Saved Images</string>
+
 
 </resources>

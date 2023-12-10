@@ -10,13 +10,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-
 import com.squareup.picasso.Picasso;
-
+import java.io.File;
 import java.util.List;
 
 public class SavedImagesAdapter extends ArrayAdapter<SavedImage> {
@@ -40,15 +38,9 @@ public class SavedImagesAdapter extends ArrayAdapter<SavedImage> {
             TextView customDateTextView = convertView.findViewById(R.id.customDateTextView);
             ImageView customImageView = convertView.findViewById(R.id.customImageView);
 
-            // Log statements to check if TextView and ImageView are null
-            Log.d("Adapter", "customDateTextView is null: " + (customDateTextView == null));
-            Log.d("Adapter", "customImageView is null: " + (customImageView == null));
-
             // Continue with setting text if TextView and ImageView are not null
             if (customDateTextView != null && customImageView != null) {
                 customDateTextView.setText(currentImage.getDate());
-                // Assuming you have a method to load the image into the ImageView
-                // You can replace the following line with your actual implementation
                 loadImageIntoImageView(currentImage.getImageUrl(), customImageView);
             }
 
@@ -59,9 +51,10 @@ public class SavedImagesAdapter extends ArrayAdapter<SavedImage> {
                 @Override
                 public void onClick(View v) {
                     Log.d("Adapter", "Delete button clicked at position: " + position);
-                    showDeleteConfirmationDialog(position);
+                    showDeleteConfirmationDialog(currentImage);
                 }
             });
+
 
             return convertView;
         }
@@ -70,25 +63,31 @@ public class SavedImagesAdapter extends ArrayAdapter<SavedImage> {
     }
 
     // Method to show the delete confirmation dialog
-    public void showDeleteConfirmationDialog(final int position) {
-        Log.d("Adapter", "Showing delete confirmation dialog for position: " + position);
+    public void showDeleteConfirmationDialog(final SavedImage deletedImage) {
+        Log.d("Adapter", "Showing delete confirmation dialog for image: " + deletedImage.getImageUrl());
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Delete Image");
-        builder.setMessage("Are you sure you want to delete this image?");
+        builder.setMessage(R.string.delete_confirmation_message);
 
-        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Log.d("Adapter", "Deleting image at position: " + position);
+                Log.d("Adapter", "Deleting image");
+
                 // Remove the item from the list and notify the adapter
-                remove(getItem(position));
+                remove(deletedImage);
                 notifyDataSetChanged();
                 Log.d("Adapter", "Image deleted. Data set size: " + getCount());
+
+                // Delete the image file associated with the deleted item
+                deleteImageFile(deletedImage);
+
+                // Remove the saved image from SharedPreferences
+                removeFromSharedPreferences(getContext(), deletedImage);
             }
         });
 
-
-        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
@@ -99,8 +98,58 @@ public class SavedImagesAdapter extends ArrayAdapter<SavedImage> {
         dialog.show();
     }
 
-    // You may also need to implement a method to load the image into the ImageView
+
+    // Method to delete the image file associated with the SavedImage
+    private void deleteImageFile(SavedImage deletedImage) {
+        if (deletedImage != null) {
+            // Remove the image from shared preferences
+            List<SavedImage> savedImages = SharedPreferenceHelper.getSavedImages(getContext());
+
+            if (savedImages != null && savedImages.contains(deletedImage)) {
+                savedImages.remove(deletedImage);
+                SharedPreferenceHelper.saveImages(getContext(), savedImages);
+
+                // Notify the adapter that the data set has changed
+                notifyDataSetChanged();
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+    // Method to remove a saved image from SharedPreferences
+    private void removeFromSharedPreferences(Context context, SavedImage savedImage) {
+        // Get the current list of saved images
+        List<SavedImage> savedImages = SharedPreferenceHelper.getSavedImages(context);
+
+        // Remove the deleted image
+        if (savedImages != null) {
+            savedImages.remove(savedImage);
+
+            // Save the updated list back to SharedPreferences
+            SharedPreferenceHelper.saveImages(context, savedImages);
+        }
+    }
+
+    // Method to load the image into the ImageView using Picasso
     private void loadImageIntoImageView(String imageUrl, ImageView imageView) {
         Picasso.get().load(imageUrl).into(imageView);
     }
+
+    private SavedImage findImageByImageUrl(List<SavedImage> savedImages, String imageUrl) {
+        if (savedImages != null) {
+            for (SavedImage savedImage : savedImages) {
+                if (imageUrl.equals(savedImage.getImageUrl())) {
+                    return savedImage;
+                }
+            }
+        }
+        return null;
+    }
+
 }

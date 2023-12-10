@@ -1,21 +1,18 @@
 package com.example.finalproject;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -40,13 +37,14 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements DatePickerFragment.OnDateSelectedListener {
 
     private EditText editTextDate;
-    private Button searchButton;
     private TextView titleTextView;
     private TextView descriptionTextView;
     private TextView displayDateTextView;
     private ImageView imageView;
     private TextView urlTextView;
-    private Button showDatePickerButton;
+
+    private JSONObject result;
+
 
     public static final int MENU_SAVED_IMAGES = R.id.menu_saved_images;
     public static final int MENU_HOME = R.id.menu_home;
@@ -65,54 +63,66 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
 
 
         toggle.setDrawerIndicatorEnabled(true);
-        // getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
 
         editTextDate = findViewById(R.id.editText);
-        searchButton = findViewById(R.id.searchButton);
+        Button searchButton = findViewById(R.id.searchButton);
         titleTextView = findViewById(R.id.titleTextView);
         descriptionTextView = findViewById(R.id.descriptionTextView);
         displayDateTextView = findViewById(R.id.displayDateTextView);
         imageView = findViewById(R.id.imageView);
         urlTextView = findViewById(R.id.urlTextView);
-        showDatePickerButton = findViewById(R.id.datePickerButton);
+        Button showDatePickerButton = findViewById(R.id.datePickerButton);
 
-        searchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String selectedDate = editTextDate.getText().toString();
-                new FetchAPODTask().execute(selectedDate);
-            }
+        searchButton.setOnClickListener(v -> {
+            String selectedDate = editTextDate.getText().toString();
+            new FetchAPODTask().execute(selectedDate);
         });
 
-        showDatePickerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDatePickerDialog();
-            }
-        });
+        showDatePickerButton.setOnClickListener(v -> showDatePickerDialog());
 
         // Add navigation item selected listener
         NavigationView navigationView = findViewById(R.id.navigation_view_main);
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                // Handle navigation item clicks here
-                int itemId = item.getItemId();
-                if (itemId == R.id.nav_home) {
-                    // Handle home item click
-                } else if (itemId == R.id.menu_saved_images) {
-                    // Handle saved images item click
-                    startActivity(new Intent(MainActivity.this, SavedImagesActivity.class));
-                }
-
-                // Close the drawer when an item is selected
-                drawer.closeDrawer(GravityCompat.START);
-                return true;
+        navigationView.setNavigationItemSelectedListener(item -> {
+            // Handle navigation item clicks here
+            int itemId = item.getItemId();
+            if (itemId == R.id.nav_home) {
+            } else if (itemId == R.id.menu_saved_images) {
+                startActivity(new Intent(MainActivity.this, SavedImagesActivity.class));
             }
 
+            // Close the drawer when an item is selected
+            drawer.closeDrawer(GravityCompat.START);
+            return true;
         });
+        Button savedImagesButton = findViewById(R.id.savedImagesButton);
+
+        savedImagesButton.setOnClickListener(v -> saveCurrentImage());
+    }
+
+    private void saveCurrentImage() {
+        if (result != null) {
+            try {
+                String title = result.getString("title");
+                String description = result.getString("explanation");
+                String imageUrl = result.getString("url");
+                String hdUrl = result.getString("hdurl");
+                String date = result.getString("date");
+
+                SavedImage savedImage = new SavedImage(title, description, imageUrl, hdUrl, date);
+                SharedPreferenceHelper.saveImage(MainActivity.this, savedImage);
+                List<SavedImage> savedImages = SharedPreferenceHelper.getSavedImages(MainActivity.this);
+                Log.d("SavedImages", "Number of saved images: " + (savedImages != null ? savedImages.size() : 0));
+
+                // Show a toast message
+                Toast.makeText(MainActivity.this, R.string.successful_save_message, Toast.LENGTH_SHORT).show();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        } else {
+            Toast.makeText(MainActivity.this, R.string.failed_save_message, Toast.LENGTH_SHORT).show();
+        }
     }
 
 
@@ -135,19 +145,21 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
 
     @Override
     public void onDateSelected(int year, int month, int day) {
-        String selectedDate = String.format("%04d-%02d-%02d", year, month + 1, day);
+        @SuppressLint("DefaultLocale") String selectedDate = String.format("%04d-%02d-%02d", year, month + 1, day);
         editTextDate.setText(selectedDate);
     }
 
+    @SuppressLint("StaticFieldLeak")
     private class FetchAPODTask extends AsyncTask<String, Void, JSONObject> {
         private final ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog.setMessage("Fetching APOD...");
+            progressDialog.setMessage(getString(R.string.loading_message));
             progressDialog.show();
         }
+
 
         @Override
         protected JSONObject doInBackground(String... params) {
@@ -198,26 +210,19 @@ public class MainActivity extends AppCompatActivity implements DatePickerFragmen
 
                     Picasso.get().load(imageUrl).into(imageView);
 
-                    SavedImage savedImage = new SavedImage(title, description, imageUrl, hdUrl, date);
-                    SharedPreferenceHelper.saveImage(MainActivity.this, savedImage);
-                    List<SavedImage> savedImages = SharedPreferenceHelper.getSavedImages(MainActivity.this);
-                    Log.d("SavedImages", "Number of saved images: " + (savedImages != null ? savedImages.size() : 0));
-
-                    String urlText = "View Image Details";
+                    int urlText = R.string.hyperlink_message;
                     urlTextView.setText(urlText);
-                    urlTextView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(hdUrl));
-                            startActivity(browserIntent);
-                        }
+                    urlTextView.setOnClickListener(v -> {
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(hdUrl));
+                        startActivity(browserIntent);
                     });
 
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                MainActivity.this.result = result;
             } else {
-                Toast.makeText(MainActivity.this, "Failed to fetch APOD data", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, R.string.load_fail, Toast.LENGTH_SHORT).show();
             }
         }
     }

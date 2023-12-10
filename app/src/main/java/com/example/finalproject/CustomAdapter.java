@@ -53,7 +53,6 @@ public class CustomAdapter extends BaseAdapter {
             viewHolder.imageView = view.findViewById(R.id.customImageView);
             viewHolder.dateTextView = view.findViewById(R.id.customDateTextView);
 
-            // Set the ViewHolder as a tag for the view
             view.setTag(viewHolder);
         } else {
             // View is recycled, retrieve ViewHolder from tag
@@ -68,7 +67,6 @@ public class CustomAdapter extends BaseAdapter {
         return view;
     }
 
-    // ViewHolder pattern to improve performance by recycling views
     private static class ViewHolder {
         ImageView imageView;
         TextView dateTextView;
